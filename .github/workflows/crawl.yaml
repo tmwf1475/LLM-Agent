@@ -1,0 +1,27 @@
+name: Run crawler
+
+on: push
+
+jobs:
+  crawl-data:
+    needs: deploy
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        process: ["1", "2", "3", "4", "5", "6", "7"]
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        channels: conda-forge
+        auto-update-conda: true
+        environment-file: crawl_env.yaml
+        activate-environment: crawl_env
+
+    - name: Run script to sync problems and upload to domjudge
+      shell: bash -el {0}
+      run: |
+          python scripts/1_data_process_${{ matrix.process }}.py
